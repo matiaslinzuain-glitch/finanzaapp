@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VYRE — Fundas & Auriculares</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #07090e;
+      color: #ddeeff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #07090e; }
+    ::-webkit-scrollbar-thumb { background: #142040; border-radius: 2px; }
+
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+    @keyframes floatY { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+    @keyframes marquee { from{ transform:translateX(0); } to{ transform:translateX(-33.333%); } }
+    @keyframes scrollDown {
+      0%{ transform:scaleY(0); transform-origin:top; }
+      50%{ transform:scaleY(1); transform-origin:top; }
+      51%{ transform:scaleY(1); transform-origin:bottom; }
+      100%{ transform:scaleY(0); transform-origin:bottom; }
+    }
+    @keyframes toastIn { from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:translateY(0); } }
+    @keyframes fadeInUp { from{ opacity:0; transform:translateY(20px); } to{ opacity:1; transform:translateY(0); } }
+    @keyframes spin { to{ transform:rotate(360deg); } }
+    @keyframes imgFade { from{ opacity:0; } to{ opacity:1; } }
+    @keyframes slideGlow { 0%,100%{ box-shadow:0 0 40px rgba(30,144,255,0.08); } 50%{ box-shadow:0 0 80px rgba(30,144,255,0.18); } }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -100% center; }
+    }
+    @keyframes shimmer-hero-word {
+      0%   { background-position: 100% center; }
+      100% { background-position: 0% center; }
+    }
+    /* Para letras sueltas (V del logo) */
+    .shimmer-text {
+      display: inline-block;
+      background: linear-gradient(90deg, #1e90ff 0%, #90d0ff 30%, #ddeeff 50%, #90d0ff 70%, #1e90ff 100%);
+      background-size: 400% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 18s linear infinite;
+    }
+    /* Shimmer secuencial para las 3 palabras del hero (sin repeat, un solo destello por ciclo) */
+    .hero-word-shimmer {
+      display: inline-block;
+      background: linear-gradient(90deg,
+        #ddeeff 0%, #ddeeff 48%,
+        #90d0ff 49%, #c4e8ff 49.5%, #ffffff 50%, #c4e8ff 50.5%, #90d0ff 51%,
+        #ddeeff 52%, #ddeeff 100%
+      );
+      background-size: 1000% auto;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer-hero-word 12s linear infinite;
+    }
+    /* Para oraciones completas — el haz viaja de punta a punta */
+    .shimmer-line {
+      display: inline-block;
+      background: linear-gradient(90deg,
+        #ddeeff 0%,
+        #ddeeff 20%,
+        #90d0ff 32%,
+        #1e90ff 40%,
+        #c4e8ff 47%,
+        #1e90ff 54%,
+        #90d0ff 62%,
+        #ddeeff 75%,
+        #ddeeff 100%
+      );
+      background-size: 600% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 24s linear infinite;
+    }
+    .loader-logo .v {
+      display: inline-block;
+      background: linear-gradient(90deg, #1e90ff 0%, #90d0ff 30%, #ddeeff 50%, #90d0ff 70%, #1e90ff 100%);
+      background-size: 400% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 8s linear infinite;
+    }
+
+    #loader {
+      position: fixed; inset: 0; background: #07090e;
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-inner { text-align: center; }
+    .loader-logo { display: block; font-size: 2.2rem; font-weight: 800; letter-spacing: 0.16em; margin-bottom: 32px; }
+    .loader-logo .yre { color: #ddeeff; }
+    .loader-bar { width: 180px; height: 1px; background: #0e1830; border-radius: 1px; overflow: hidden; margin: 0 auto; }
+    .loader-fill { height: 100%; background: linear-gradient(90deg, #1e90ff, #ddeeff); width: 0%; transition: width 0.05s linear; }
+
+    @media (max-width: 768px) {
+      .nav-desktop { display: none !important; }
+      .nav-hamburger { display: flex !important; }
+    }
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr !important; }
+      .hero-visual-col { display: none !important; }
+      .features-grid { grid-template-columns: repeat(2,1fr) !important; }
+      .products-grid { grid-template-columns: 1fr !important; }
+      .about-grid { grid-template-columns: 1fr !important; }
+      .about-visual { display: none !important; }
+      .testimonials-grid { grid-template-columns: 1fr !important; }
+      .contact-grid { grid-template-columns: 1fr !important; }
+      .checkout-grid { grid-template-columns: 1fr !important; }
+      .product-detail-grid { grid-template-columns: 1fr !important; }
+    }
+
+    #scrollTop {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #090c20; border: 1px solid #142040;
+      color: #5a7898; font-size: 0.8rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s; z-index: 400;
+    }
+    #scrollTop.visible { opacity: 1; pointer-events: all; }
+    #scrollTop:hover { background: #1e90ff; color: #07090e; border-color: #1e90ff; }
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-inner">
+    <span class="loader-logo"><span class="v">V</span><span class="yre">YRE</span></span>
+    <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  </div>
+</div>
+
+<button id="scrollTop" aria-label="Volver arriba" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<div id="root"></div>
+
+<script>
+  const loaderFill = document.getElementById('loaderFill');
+  const loader = document.getElementById('loader');
+  let prog = 0;
+  const iv = setInterval(() => {
+    prog += Math.random() * 16;
+    if (prog >= 100) { prog = 100; clearInterval(iv); loaderFill.style.width = '100%'; setTimeout(() => loader.classList.add('hidden'), 400); }
+    loaderFill.style.width = prog + '%';
+  }, 70);
+  window.addEventListener('scroll', () => {
+    document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 500);
+  });
+</script>
+
+<!-- STORE -->
+<script type="text/babel">
+const { createContext, useContext, useState, useEffect, useCallback } = React;
+const AppContext = createContext(null);
+
+const IPHONE_MODELS = [
+  'iPhone 17',
+  'iPhone 16',
+  'iPhone 16 Pro',
+  'iPhone 15 (6.1")',
+  'iPhone 15 Pro (6.1")',
+  'iPhone 14 Pro Max (6.7")',
+  'iPhone 14 Pro (6.1")',
+  'iPhone 13',
+  'iPhone 13 Pro',
+  'iPhone 12',
+];
+
+const PRODUCTS = [
+  {
+    id: 'funda-iphone',
+    name: 'Funda iPhone',
+    category: 'Fundas iPhone',
+    price: 6000,
+    badge: 'Más vendida',
+    description: 'Protección slim con acabado mate premium. Compatible con 10 modelos de iPhone.',
+    longDesc: 'La funda VYRE combina transparencia cristalina con protección de nivel profesional. Su material TPU de alta densidad absorbe impactos y resiste los golpes del día a día. Disponible para iPhone 12 hasta iPhone 17, cada unidad está fabricada con corte exacto para tu modelo.',
+    features: ['Material TPU premium', 'Bordes elevados para pantalla y cámara', 'Acabado mate antihuellas', 'Compatible con 10 modelos de iPhone', 'Cortes precisos para botones y cámaras'],
+    colors: ['Transparente'],
+    models: IPHONE_MODELS,
+    icon: 'fa-mobile-alt',
+    slug: 'funda-iphone',
+    images: ['uploads/pasted-1777048486207-0.png', 'uploads/pasted-1777048504179-0.png'],
+    heroImage: 'uploads/pasted-1777048504179-0.png',
+  },
+  { id:'vyre-air', name:'VYRE Air TWS', category:'Auriculares', price:12500, badge:'Top ventas', description:'True Wireless con estuche transparente LED y sonido premium.', longDesc:'Los VYRE Air redefinen lo que esperás de auriculares inalámbricos. Con estuche transparente con display LED, Bluetooth 5.3 y cancelación de ruido activa, ofrecen una experiencia de audio que rivaliza con marcas del triple de precio.', features:['Bluetooth 5.3','Autonomía 8h + 24h estuche LED','Cancelación de ruido activa','IPX4 resistente al agua'], colors:['Negro','Rosa','Azul','Verde'], icon:'fa-headphones', slug:'vyre-air', images:['uploads/Captura de pantalla 2026-04-24 133527.png','uploads/Captura de pantalla 2026-04-24 133628.png','uploads/Captura de pantalla 2026-04-24 133544.png','uploads/Captura de pantalla 2026-04-24 133556.png','uploads/Captura de pantalla 2026-04-24 133551.png','uploads/Captura de pantalla 2026-04-24 133607.png'], heroImage:'uploads/Captura de pantalla 2026-04-24 133527.png' },
+];
+
+function AppProvider({ children }) {
+  const [cart, setCart] = useState(() => { try { return JSON.parse(localStorage.getItem('vyre_cart') || '[]'); } catch { return []; } });
+  const [wishlist, setWishlist] = useState(() => { try { return JSON.parse(localStorage.getItem('vyre_wish') || '[]'); } catch { return []; } });
+  const [route, setRoute] = useState(window.location.hash || '#/');
+  const [cartOpen, setCartOpen] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  useEffect(() => { localStorage.setItem('vyre_cart', JSON.stringify(cart)); }, [cart]);
+  useEffect(() => { localStorage.setItem('vyre_wish', JSON.stringify(wishlist)); }, [wishlist]);
+  useEffect(() => {
+    const handler = () => { setRoute(window.location.hash || '#/'); window.scrollTo({ top: 0 }); };
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+
+  const navigate = useCallback((path) => { window.location.hash = path; }, []);
+  const addToast = useCallback((msg, type = 'default') => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3200);
+  }, []);
+
+  const addToCart = useCallback((product, qty = 1, color = null, model = null) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === product.id && i.color === color && i.model === model);
+      if (existing) return prev.map(i => (i.id === product.id && i.color === color && i.model === model) ? { ...i, qty: i.qty + qty } : i);
+      return [...prev, { ...product, qty, color, model }];
+    });
+    setCartOpen(true);
+    addToast(`${product.name}${model ? ` (${model})` : ''} agregado al carrito`);
+  }, [addToast]);
+
+  const removeFromCart = useCallback((id, color, model) => { setCart(prev => prev.filter(i => !(i.id === id && i.color === color && i.model === model))); }, []);
+  const updateQty = useCallback((id, color, model, delta) => {
+    setCart(prev => prev.map(i => {
+      if (i.id === id && i.color === color && i.model === model) { const newQty = i.qty + delta; return newQty < 1 ? null : { ...i, qty: newQty }; }
+      return i;
+    }).filter(Boolean));
+  }, []);
+
+  const toggleWishlist = useCallback((product) => {
+    setWishlist(prev => {
+      const inWishlist = prev.find(i => i.id === product.id);
+      if (inWishlist) { addToast('Eliminado de favoritos'); return prev.filter(i => i.id !== product.id); }
+      addToast('Agregado a favoritos ♡', 'heart');
+      return [...prev, product];
+    });
+  }, [addToast]);
+
+  const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  const wishCount = wishlist.length;
+
+  return (
+    <AppContext.Provider value={{ cart, wishlist, route, navigate, addToCart, removeFromCart, updateQty, toggleWishlist, cartOpen, setCartOpen, toasts, addToast, cartTotal, cartCount, wishCount, PRODUCTS }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+const useApp = () => useContext(AppContext);
+</script>
+
+<!-- LAYOUT -->
+<script type="text/babel">
+function Toast({ msg, type }) {
+  return (
+    <div style={{ background: type==='heart'?'#1a1410':'#0c1025', border:`1px solid ${type==='heart'?'#1e90ff44':'#1e3055'}`, color:type==='heart'?'#1e90ff':'#ddeeff', borderRadius:'100px', padding:'11px 24px', fontSize:'0.8rem', fontWeight:500, letterSpacing:'0.02em', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', whiteSpace:'nowrap', animation:'toastIn 0.3s cubic-bezier(0.4,0,0.2,1)' }}>{msg}</div>
+  );
+}
+
+function ToastContainer({ toasts }) {
+  return (
+    <div style={{ position:'fixed', bottom:32, left:'50%', transform:'translateX(-50%)', zIndex:9999, display:'flex', flexDirection:'column', gap:8, alignItems:'center', pointerEvents:'none' }}>
+      {toasts.map(t => <Toast key={t.id} msg={t.msg} type={t.type} />)}
+    </div>
+  );
+}
+
+function CartSidebar() {
+  const { cart, cartOpen, setCartOpen, cartTotal, cartCount, removeFromCart, updateQty, navigate } = useApp();
+  return (
+    <>
+      <div onClick={() => setCartOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', backdropFilter:'blur(6px)', zIndex:700, opacity:cartOpen?1:0, pointerEvents:cartOpen?'all':'none', transition:'opacity 0.4s ease' }} />
+      <div style={{ position:'fixed', top:0, right:0, bottom:0, width:400, background:'#08091c', borderLeft:'1px solid #142040', zIndex:800, display:'flex', flexDirection:'column', transform:cartOpen?'translateX(0)':'translateX(100%)', transition:'transform 0.45s cubic-bezier(0.4,0,0.2,1)' }}>
+        <div style={{ padding:'24px', borderBottom:'1px solid #142040', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div style={{ fontSize:'0.62rem', letterSpacing:'0.16em', color:'#5a7898', textTransform:'uppercase', marginBottom:4 }}>Tu selección</div>
+            <div style={{ fontSize:'1rem', fontWeight:600, color:'#ddeeff' }}>Carrito {cartCount > 0 && <span style={{ color:'#1e90ff' }}>({cartCount})</span>}</div>
+          </div>
+          <button onClick={() => setCartOpen(false)} style={{ background:'none', border:'1px solid #142040', color:'#5a7898', cursor:'pointer', width:36, height:36, borderRadius:'50%', fontSize:'0.9rem', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='#333'; e.currentTarget.style.color='#ddeeff'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}>
+            <i className="fas fa-times" />
+          </button>
+        </div>
+        <div style={{ flex:1, overflowY:'auto', padding:'20px 24px', display:'flex', flexDirection:'column', gap:12 }}>
+          {cart.length === 0 ? (
+            <div style={{ margin:'auto', textAlign:'center', color:'#333' }}>
+              <i className="fas fa-shopping-bag" style={{ fontSize:'2.5rem', marginBottom:16, display:'block', opacity:0.3 }} />
+              <p style={{ fontSize:'0.88rem' }}>Tu carrito está vacío</p>
+            </div>
+          ) : cart.map((item, i) => (
+            <div key={i} style={{ background:'#111', border:'1px solid #142040', borderRadius:14, padding:16, display:'flex', gap:14, alignItems:'center' }}>
+              <div style={{ width:52, height:52, background:'#161616', borderRadius:10, overflow:'hidden', flexShrink:0 }}>
+                {item.heroImage ? <img src={item.heroImage} alt={item.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', color:'#333' }}><i className={`fas ${item.icon||'fa-box'}`} style={{ fontSize:'1.3rem' }} /></div>}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:'0.85rem', fontWeight:600, color:'#ddeeff', marginBottom:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{item.name}</div>
+                {(item.model || item.color) && <div style={{ fontSize:'0.7rem', color:'#5a7898', marginBottom:6 }}>{[item.model, item.color].filter(Boolean).join(' · ')}</div>}
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <button onClick={() => updateQty(item.id, item.color, item.model, -1)} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid #1e3055', background:'none', color:'#5a7898', cursor:'pointer', fontSize:'0.75rem', display:'flex', alignItems:'center', justifyContent:'center' }}>−</button>
+                  <span style={{ fontSize:'0.82rem', color:'#ddeeff', minWidth:16, textAlign:'center' }}>{item.qty}</span>
+                  <button onClick={() => updateQty(item.id, item.color, item.model, 1)} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid #1e3055', background:'none', color:'#5a7898', cursor:'pointer', fontSize:'0.75rem', display:'flex', alignItems:'center', justifyContent:'center' }}>+</button>
+                </div>
+              </div>
+              <div style={{ textAlign:'right', flexShrink:0 }}>
+                <div style={{ fontSize:'0.88rem', fontWeight:700, color:'#1e90ff', marginBottom:8 }}>${(item.price*item.qty).toLocaleString('es-AR')}</div>
+                <button onClick={() => removeFromCart(item.id, item.color, item.model)} style={{ background:'none', border:'none', color:'#333', cursor:'pointer', fontSize:'0.75rem', transition:'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color='#f87171'}
+                  onMouseLeave={e => e.currentTarget.style.color='#333'}>
+                  <i className="fas fa-trash" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {cart.length > 0 && (
+          <div style={{ padding:'20px 24px', borderTop:'1px solid #142040', display:'flex', flexDirection:'column', gap:14 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <span style={{ fontSize:'0.8rem', color:'#5a7898', letterSpacing:'0.06em', textTransform:'uppercase' }}>Total</span>
+              <span style={{ fontSize:'1.3rem', fontWeight:800, color:'#ddeeff' }}>${cartTotal.toLocaleString('es-AR')}</span>
+            </div>
+            <button onClick={() => { setCartOpen(false); navigate('#/checkout'); }} style={{ padding:'16px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background='#1e90ff'}
+              onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>
+              Continuar compra →
+            </button>
+            <a href={`https://wa.me/5491100000000?text=Hola! Quiero comprar: ${cart.map(i=>`${i.name} x${i.qty}`).join(', ')}`} target="_blank" rel="noopener noreferrer"
+              style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'13px', background:'transparent', border:'1px solid #142040', borderRadius:12, fontSize:'0.82rem', fontWeight:600, color:'#5a7898', textDecoration:'none', transition:'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='#25d366'; e.currentTarget.style.color='#25d366'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}>
+              <i className="fab fa-whatsapp" /> Comprar por WhatsApp
+            </a>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function Navbar() {
+  const { cartCount, wishCount, cartOpen, setCartOpen, navigate, route } = useApp();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+  const links = [{ label:'Inicio', href:'#/' }, { label:'Productos', href:'#productos' }, { label:'Nosotros', href:'#nosotros' }, { label:'Contacto', href:'#contacto' }];
+  const handleNavClick = (href) => {
+    setMenuOpen(false);
+    if (href === '#/') {
+      if (window.location.hash !== '#/' && window.location.hash !== '') {
+        window.location.hash = '/';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (href.startsWith('#/')) { window.location.hash = href; return; }
+    if (route !== '#/' && route !== '') {
+      window.location.hash = '/';
+      setTimeout(() => { const el = document.querySelector(href); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 300);
+      return;
+    }
+    const el = document.querySelector(href);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  return (
+    <>
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:500, height:68, display:'flex', alignItems:'center', padding:'0 40px', background:scrolled?'rgba(7,9,14,0.94)':'transparent', backdropFilter:scrolled?'blur(24px)':'none', borderBottom:scrolled?'1px solid #142040':'1px solid transparent', transition:'all 0.5s cubic-bezier(0.4,0,0.2,1)' }}>
+        <div style={{ maxWidth:1280, width:'100%', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <a href="#/" onClick={e => { e.preventDefault(); navigate('#/'); }} style={{ textDecoration:'none', display:'flex', alignItems:'center' }}>
+            <img src="uploads/pasted-1777048750254-0.png" alt="VYRE" style={{ height:44, width:'auto', objectFit:'contain' }} onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+            <span style={{ display:'none', fontSize:'1.5rem', fontWeight:800, letterSpacing:'0.06em' }}><span className="shimmer-text">V</span><span style={{ color:'#ddeeff' }}>YRE</span></span>
+          </a>
+          <ul style={{ display:'flex', gap:44, listStyle:'none', margin:0, padding:0 }} className="nav-desktop">
+            {links.map(l => (
+              <li key={l.label}>
+                <a href={l.href} onClick={e => { e.preventDefault(); handleNavClick(l.href); }} style={{ fontSize:'0.8rem', color:'#5a7898', textDecoration:'none', letterSpacing:'0.06em', transition:'color 0.2s', fontWeight:500 }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <button onClick={() => navigate('#/wishlist')} style={{ position:'relative', background:'none', border:'none', color:'#5a7898', fontSize:'1rem', cursor:'pointer', padding:8, transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#1e90ff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>
+              <i className="fas fa-heart" />
+              {wishCount > 0 && <span style={{ position:'absolute', top:2, right:2, background:'#1e90ff', color:'#07090e', fontSize:'0.5rem', fontWeight:800, width:14, height:14, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center' }}>{wishCount}</span>}
+            </button>
+            <button onClick={() => setCartOpen(!cartOpen)} style={{ position:'relative', background:'none', border:'none', color:'#5a7898', fontSize:'1rem', cursor:'pointer', padding:8, transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>
+              <i className="fas fa-shopping-bag" />
+              {cartCount > 0 && <span style={{ position:'absolute', top:2, right:2, background:'#ddeeff', color:'#07090e', fontSize:'0.5rem', fontWeight:800, width:14, height:14, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center' }}>{cartCount}</span>}
+            </button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="nav-hamburger" style={{ display:'none', background:'none', border:'none', color:'#5a7898', cursor:'pointer', padding:8, fontSize:'1rem' }}>
+              <i className={`fas ${menuOpen?'fa-times':'fa-bars'}`} />
+            </button>
+          </div>
+        </div>
+      </nav>
+      {menuOpen && (
+        <div style={{ position:'fixed', top:68, left:0, right:0, background:'rgba(7,9,14,0.97)', backdropFilter:'blur(24px)', zIndex:490, borderBottom:'1px solid #142040', padding:'24px 40px', display:'flex', flexDirection:'column', gap:20 }}>
+          {links.map(l => <a key={l.label} href={l.href} onClick={e => { e.preventDefault(); handleNavClick(l.href); }} style={{ fontSize:'1.1rem', color:'#ddeeff', textDecoration:'none', fontWeight:500, letterSpacing:'0.06em' }}>{l.label}</a>)}
+        </div>
+      )}
+    </>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{ borderTop:'1px solid #142040', padding:'72px 40px 32px', background:'#07090e' }}>
+      <div style={{ maxWidth:1280, margin:'0 auto' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', gap:60, marginBottom:60, flexWrap:'wrap' }}>
+          <div>
+            <div style={{ fontSize:'1.8rem', fontWeight:800, letterSpacing:'0.1em', marginBottom:10 }}><span className="shimmer-text">V</span><span style={{ color:'#ddeeff' }}>YRE</span></div>
+            <p style={{ color:'#5a7898', fontSize:'0.85rem', maxWidth:220, lineHeight:1.7 }}>Estilo que protege. Diseñado para quienes no se conforman.</p>
+          </div>
+          <div style={{ display:'flex', gap:60, flexWrap:'wrap' }}>
+            {[{ title:'Navegación', links:[['Inicio','#/'],['Productos','#productos'],['Nosotros','#nosotros'],['Contacto','#contacto']] }, { title:'Productos', links:[['Fundas iPhone','#productos'],['Auriculares','#productos']] }, { title:'Redes', links:[['Instagram','#'],['TikTok','#'],['Mercado Libre','#']] }].map(col => (
+              <div key={col.title} style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.14em', textTransform:'uppercase', color:'#283860', marginBottom:4 }}>{col.title}</div>
+                {col.links.map(([label, href]) => <a key={label} href={href} style={{ fontSize:'0.82rem', color:'#5a7898', textDecoration:'none', transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>{label}</a>)}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ borderTop:'1px solid #142040', paddingTop:28, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:16 }}>
+          <p style={{ fontSize:'0.75rem', color:'#283860' }}>© 2025 VYRE. Todos los derechos reservados.</p>
+          <div style={{ display:'flex', gap:16 }}>
+            {['fa-instagram','fa-tiktok'].map(icon => <a key={icon} href="#" style={{ color:'#283860', fontSize:'0.9rem', textDecoration:'none', transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#283860'}><i className={`fab ${icon}`} /></a>)}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+</script>
+
+<!-- HOME -->
+<script type="text/babel">
+function useReveal(threshold = 0.12) {
+  const ref = React.useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+function Slideshow({ images, interval = 5000 }) {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    if (!images || images.length <= 1) return;
+    const timer = setInterval(() => setActive(i => (i + 1) % images.length), interval);
+    return () => clearInterval(timer);
+  }, []);
+  if (!images || images.length === 0) return null;
+  return (
+    <>
+      {images.map((src, i) => (
+        <img
+          key={i} src={src} alt=""
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            opacity: i === active ? 1 : 0,
+            transition: 'opacity 2s cubic-bezier(0.4,0,0.2,1)',
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+const HERO_IMAGES = [
+  'uploads/pasted-1777048504179-0.png',
+  'uploads/pasted-1777048486207-0.png',
+  'uploads/Captura de pantalla 2026-04-24 133527.png',
+  'uploads/Captura de pantalla 2026-04-24 133628.png',
+  'uploads/Captura de pantalla 2026-04-24 133544.png',
+  'uploads/Captura de pantalla 2026-04-24 133556.png',
+  'uploads/Captura de pantalla 2026-04-24 133551.png',
+  'uploads/Captura de pantalla 2026-04-24 133607.png',
+];
+
+const ABOUT_IMAGES = [
+  'uploads/pasted-1777048486207-0.png',
+  'uploads/pasted-1777048504179-0.png',
+  'uploads/Captura de pantalla 2026-04-24 133527.png',
+  'uploads/Captura de pantalla 2026-04-24 133544.png',
+  'uploads/Captura de pantalla 2026-04-24 133551.png',
+  'uploads/Captura de pantalla 2026-04-24 133628.png',
+];
+
+function Hero() {
+  const { navigate } = useApp();
+  const canvasRef = React.useRef(null);
+  const cardRef = React.useRef(null);
+  const [entered, setEntered] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setEntered(true), 100); return () => clearTimeout(t); }, []);
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); let raf;
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+    resize(); window.addEventListener('resize', resize);
+    const particles = Array.from({ length: 60 }, () => ({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25, size:Math.random()*1+0.3, opacity:Math.random()*0.4+0.05, life:Math.random()*200, maxLife:Math.random()*200+80 }));
+    const draw = () => {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p => {
+        p.x+=p.vx; p.y+=p.vy; p.life++;
+        if (p.life>p.maxLife||p.x<0||p.x>canvas.width||p.y<0||p.y>canvas.height) { p.x=Math.random()*canvas.width; p.y=Math.random()*canvas.height; p.life=0; p.maxLife=Math.random()*200+80; }
+        const fade=p.life<30?p.life/30:p.life>p.maxLife-30?(p.maxLife-p.life)/30:1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fillStyle=`rgba(30,144,255,${p.opacity*fade*0.6})`; ctx.fill();
+      });
+      for (let i=0;i<particles.length;i++) for (let j=i+1;j<particles.length;j++) { const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy); if (dist<90) { ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y); ctx.strokeStyle=`rgba(30,144,255,${0.03*(1-dist/90)})`; ctx.lineWidth=0.5; ctx.stroke(); } }
+      raf=requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+  const handleMouseMove = (e) => { if (!cardRef.current) return; const rect=cardRef.current.getBoundingClientRect(); const x=(e.clientX-rect.left)/rect.width-0.5; const y=(e.clientY-rect.top)/rect.height-0.5; cardRef.current.style.transform=`perspective(900px) rotateY(${x*12}deg) rotateX(${-y*8}deg) scale(1.02)`; };
+  const handleMouseLeave = () => { if (cardRef.current) cardRef.current.style.transform='perspective(900px) rotateY(0) rotateX(0) scale(1)'; };
+  const words = ['Estilo','que','protege.'];
+  return (
+    <section style={{ position:'relative', minHeight:'100vh', display:'grid', gridTemplateColumns:'1fr 1fr', alignItems:'center', gap:60, maxWidth:1280, margin:'0 auto', padding:'120px 40px 80px', overflow:'hidden' }}>
+      <canvas ref={canvasRef} style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', opacity:0.7 }} />
+      <div style={{ position:'absolute', top:'20%', left:'10%', width:400, height:400, background:'radial-gradient(circle, rgba(30,144,255,0.04) 0%, transparent 70%)', borderRadius:'50%', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', bottom:'10%', right:'5%', width:300, height:300, background:'radial-gradient(circle, rgba(30,144,255,0.03) 0%, transparent 70%)', borderRadius:'50%', pointerEvents:'none' }} />
+      <div style={{ position:'relative', zIndex:1 }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:10, background:'#0c1025', border:'1px solid #1a2848', borderRadius:100, padding:'7px 18px', fontSize:'0.72rem', color:'#5a7898', marginBottom:32, opacity:entered?1:0, transform:entered?'none':'translateY(20px)', transition:'all 0.7s ease 0.1s', letterSpacing:'0.08em' }}>
+          <span style={{ width:6, height:6, borderRadius:'50%', background:'#4ade80', boxShadow:'0 0 8px #4ade80', animation:'blink 2s infinite', flexShrink:0 }} />
+          Nueva colección 2026
+        </div>
+        <h1 style={{ fontSize:'clamp(3rem,6.5vw,5.5rem)', fontWeight:800, lineHeight:1.05, marginBottom:28 }}>
+          {words.map((word,wi) => (
+            <span key={wi} style={{ display:'block', overflow:'hidden' }}>
+              <span
+                className="hero-word-shimmer"
+                style={{
+                  animationDelay: `${[-5, 1, 7][wi]}s`,
+                  opacity: entered ? 1 : 0,
+                  transform: entered ? 'translateY(0)' : 'translateY(60px)',
+                  transition: `all 0.8s cubic-bezier(0.4,0,0.2,1) ${0.2+wi*0.12}s`
+                }}
+              >{word}</span>
+            </span>
+          ))}
+        </h1>
+        <p style={{ color:'#5a7898', fontSize:'1rem', lineHeight:1.8, maxWidth:420, marginBottom:44, opacity:entered?1:0, transform:entered?'none':'translateY(20px)', transition:'all 0.7s ease 0.58s' }}>Fundas para iPhone y auriculares inalámbricos al mejor precio.<br />Calidad sin excusas, estética sin compromisos.</p>
+        <div style={{ display:'flex', gap:16, alignItems:'center', marginBottom:60, opacity:entered?1:0, transform:entered?'none':'translateY(20px)', transition:'all 0.7s ease 0.68s' }}>
+          <button onClick={() => { const el=document.getElementById('productos'); if(el) el.scrollIntoView({behavior:'smooth'}); }} style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'15px 32px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', letterSpacing:'0.04em', transition:'all 0.25s' }} onMouseEnter={e => { e.currentTarget.style.background='#1e90ff'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 16px 48px rgba(30,144,255,0.2)'; }} onMouseLeave={e => { e.currentTarget.style.background='#ddeeff'; e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>Ver productos <i className="fas fa-arrow-right" /></button>
+          <button onClick={() => { const el=document.getElementById('nosotros'); if(el) el.scrollIntoView({behavior:'smooth'}); }} style={{ fontSize:'0.85rem', color:'#5a7898', background:'none', border:'none', cursor:'pointer', borderBottom:'1px solid #1e3055', paddingBottom:2, transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.color='#ddeeff'; e.currentTarget.style.borderColor='#ddeeff'; }} onMouseLeave={e => { e.currentTarget.style.color='#5a7898'; e.currentTarget.style.borderColor='#1e3055'; }}>Conocé VYRE</button>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:36, opacity:entered?1:0, transition:'all 0.7s ease 0.8s' }}>
+          {[['500','+','Clientes'],['100','%','Satisfacción'],['24','h','Respuesta']].map(([num,suf,label],i) => (
+            <React.Fragment key={i}>
+              {i>0 && <div style={{ width:1, height:36, background:'#142040' }} />}
+              <div><div style={{ fontSize:'1.8rem', fontWeight:800, color:'#ddeeff', lineHeight:1 }}>{num}<span style={{ fontSize:'1rem', color:'#1e90ff' }}>{suf}</span></div><div style={{ fontSize:'0.7rem', color:'#5a7898', marginTop:4, letterSpacing:'0.06em' }}>{label}</div></div>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+      <div style={{ position:'relative', zIndex:1, display:'flex', justifyContent:'center', opacity:entered?1:0, transform:entered?'none':'translateX(40px)', transition:'all 0.9s cubic-bezier(0.4,0,0.2,1) 0.3s' }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+        <div ref={cardRef} style={{ position:'relative', width:'100%', maxWidth:380, aspectRatio:'3/4', borderRadius:24, background:'#090c20', border:'1px solid #1a2848', overflow:'hidden', transformStyle:'preserve-3d', transition:'transform 0.15s ease', boxShadow:'0 40px 120px rgba(0,0,0,0.6)' }}>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, rgba(30,144,255,0.07) 0%, transparent 60%)', zIndex:2, pointerEvents:'none', borderRadius:24 }} />
+          <Slideshow images={HERO_IMAGES} interval={5000} />
+        </div>
+        {[{ icon:'fa-truck-fast', text:'Envío gratis', pos:{ top:60, left:-50 }, delay:'0s' }, { icon:'fa-star', text:'5.0 rating', pos:{ bottom:100, right:-40 }, delay:'0.5s' }].map(({ icon,text,pos,delay }) => (
+          <div key={text} style={{ position:'absolute', ...pos, background:'#090c20', border:'1px solid #1a2848', borderRadius:12, padding:'10px 16px', display:'flex', alignItems:'center', gap:8, fontSize:'0.78rem', fontWeight:500, color:'#ddeeff', backdropFilter:'blur(12px)', whiteSpace:'nowrap', animation:`floatY 3.5s ease-in-out ${delay} infinite` }}>
+            <i className={`fas ${icon}`} style={{ color:'#1e90ff' }} /> {text}
+          </div>
+        ))}
+      </div>
+      <div style={{ position:'absolute', bottom:40, left:'50%', transform:'translateX(-50%)', display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
+        <span style={{ fontSize:'0.62rem', color:'#1e3055', letterSpacing:'0.16em', textTransform:'uppercase' }}>Scroll</span>
+        <div style={{ width:1, height:40, background:'linear-gradient(to bottom, #1e3055, transparent)', animation:'scrollDown 1.6s ease infinite' }} />
+      </div>
+    </section>
+  );
+}
+
+function Marquee() {
+  const items = ['VYRE','Fundas iPhone','Auriculares','Envío a todo el país','Precios imbatibles','Calidad Premium'];
+  const repeated = [...items,...items,...items];
+  return (
+    <div style={{ overflow:'hidden', background:'#080808', borderTop:'1px solid #0e1830', borderBottom:'1px solid #0e1830', padding:'16px 0' }}>
+      <div style={{ display:'flex', gap:32, width:'max-content', animation:'marquee 22s linear infinite' }}>
+        {repeated.map((item,i) => <React.Fragment key={i}><span style={{ fontSize:'0.75rem', fontWeight:500, color:'#283860', whiteSpace:'nowrap', letterSpacing:'0.06em', textTransform:'uppercase' }}>{item}</span><span style={{ color:'#1e90ff', opacity:0.5 }}>·</span></React.Fragment>)}
+      </div>
+    </div>
+  );
+}
+
+function Features() {
+  const [ref, visible] = useReveal();
+  const items = [{ icon:'fa-truck-fast', title:'Envío a todo el país', desc:'Recibís tu pedido donde estés, rápido y seguro.' }, { icon:'fa-shield-halved', title:'Garantía de calidad', desc:'Si no quedás conforme, lo resolvemos sin vueltas.' }, { icon:'fa-tag', title:'Mejor precio', desc:'Calidad premium al precio más bajo del mercado.' }, { icon:'fa-headset', title:'Soporte 24/7', desc:'Siempre disponibles para responder tus consultas.' }];
+  return (
+    <section ref={ref} style={{ maxWidth:1280, margin:'0 auto', padding:'80px 40px' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16 }} className="features-grid">
+        {items.map((item,i) => (
+          <div key={i} style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:20, padding:'28px 24px', opacity:visible?1:0, transform:visible?'none':'translateY(30px)', transition:`all 0.6s ease ${i*0.08}s`, cursor:'default' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#1e90ff22'; e.currentTarget.style.transform='translateY(-4px)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#0e1830'; e.currentTarget.style.transform='none'; }}>
+            <div style={{ width:40, height:40, background:'#111', border:'1px solid #142040', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18 }}><i className={`fas ${item.icon}`} style={{ color:'#1e90ff', fontSize:'0.95rem' }} /></div>
+            <h4 style={{ fontSize:'0.92rem', fontWeight:600, color:'#ddeeff', marginBottom:8 }}>{item.title}</h4>
+            <p style={{ fontSize:'0.82rem', color:'#5a7898', lineHeight:1.65 }}>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProductCard({ product, delay }) {
+  const { addToCart, toggleWishlist, wishlist, navigate } = useApp();
+  const [ref, visible] = useReveal();
+  const inWish = wishlist.some(i => i.id === product.id);
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div ref={ref} style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:22, overflow:'hidden', opacity:visible?1:0, transform:visible?'none':'translateY(30px)', transition:`all 0.7s ease ${delay}s`, cursor:'pointer' }} onMouseEnter={e => { setHovered(true); e.currentTarget.style.borderColor='#1e90ff33'; e.currentTarget.style.transform='translateY(-6px)'; e.currentTarget.style.boxShadow='0 24px 80px rgba(30,144,255,0.06)'; }} onMouseLeave={e => { setHovered(false); e.currentTarget.style.borderColor='#0e1830'; e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
+      <div style={{ position:'relative', aspectRatio:1, background:'#0b0e1c', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', transition:'transform 0.5s ease', transform:hovered?'scale(1.04)':'scale(1)' }} onClick={() => navigate(`#/product/${product.slug}`)}>
+        {product.images && product.images.length > 0
+          ? <Slideshow images={product.images} interval={4800} />
+          : <i className={`fas ${product.icon}`} style={{ fontSize:'5rem', color:'#1a2240' }} />
+        }
+        {product.badge && <div style={{ position:'absolute', top:14, left:14, background:'#1e90ff', color:'#07090e', fontSize:'0.65rem', fontWeight:700, letterSpacing:'0.06em', padding:'4px 12px', borderRadius:100, textTransform:'uppercase' }}>{product.badge}</div>}
+        <button onClick={e => { e.stopPropagation(); toggleWishlist(product); }} style={{ position:'absolute', top:14, right:14, width:34, height:34, borderRadius:'50%', background:'rgba(7,9,14,0.8)', backdropFilter:'blur(8px)', border:'1px solid #1a2848', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', opacity:hovered||inWish?1:0, transition:'all 0.2s', color:inWish?'#1e90ff':'#5a7898', fontSize:'0.8rem' }}><i className={inWish?'fas fa-heart':'far fa-heart'} /></button>
+        <div style={{ position:'absolute', inset:0, background:'rgba(7,9,14,0.7)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', opacity:hovered?1:0, transition:'opacity 0.3s' }}>
+          <button onClick={e => { e.stopPropagation(); navigate(`#/product/${product.slug}`); }} style={{ padding:'12px 28px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:10, fontSize:'0.82rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:8, transform:hovered?'translateY(0)':'translateY(10px)', transition:'transform 0.3s ease' }}><i className="fas fa-eye" /> Ver opciones</button>
+        </div>
+      </div>
+      <div style={{ padding:'20px 22px' }} onClick={() => navigate(`#/product/${product.slug}`)}>
+        <div style={{ fontSize:'0.65rem', color:'#5a7898', textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:6 }}>{product.category}</div>
+        <h3 style={{ fontSize:'1rem', fontWeight:600, color:'#ddeeff', marginBottom:6 }}>{product.name}</h3>
+        <p style={{ fontSize:'0.8rem', color:'#5a7898', marginBottom:16, lineHeight:1.6 }}>{product.description}</p>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span style={{ fontSize:'1.2rem', fontWeight:800, color:'#ddeeff' }}>${product.price.toLocaleString('es-AR')}</span>
+          <div style={{ fontSize:'0.7rem', color:'#1e90ff', letterSpacing:2 }}>★★★★★</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Products() {
+  const { PRODUCTS } = useApp();
+  const [filter, setFilter] = useState('all');
+  const [ref, visible] = useReveal();
+  const filtered = PRODUCTS.filter(p => filter==='all'||(filter==='fundas'&&p.category==='Fundas iPhone')||(filter==='auriculares'&&p.category==='Auriculares'));
+  return (
+    <section id="productos" style={{ maxWidth:1280, margin:'0 auto', padding:'0 40px 100px' }}>
+      <div ref={ref} style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:52, flexWrap:'wrap', gap:24, opacity:visible?1:0, transform:visible?'none':'translateY(30px)', transition:'all 0.6s ease' }}>
+        <div>
+          <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:12 }}>Catálogo</div>
+          <h2 className="shimmer-line" style={{ fontSize:'clamp(2rem,4vw,3rem)', fontWeight:700, lineHeight:1.15 }}>Nuestros Productos</h2>
+        </div>
+        <div style={{ display:'flex', gap:6 }}>
+          {[['all','Todos'],['fundas','Fundas'],['auriculares','Auriculares']].map(([val,label]) => (
+            <button key={val} onClick={() => setFilter(val)} style={{ padding:'8px 20px', borderRadius:100, border:`1px solid ${filter===val?'#1e90ff':'#142040'}`, background:filter===val?'rgba(30,144,255,0.1)':'transparent', color:filter===val?'#1e90ff':'#5a7898', fontSize:'0.78rem', fontWeight:500, cursor:'pointer', transition:'all 0.2s', letterSpacing:'0.04em' }}>{label}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:20 }}>
+        {filtered.map((p,i) => <ProductCard key={p.id} product={p} delay={i*0.07} />)}
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  const [ref, visible] = useReveal(0.1);
+  return (
+    <section id="nosotros" style={{ background:'#080808', borderTop:'1px solid #0e1830', borderBottom:'1px solid #0e1830', padding:'120px 40px' }}>
+      <div ref={ref} style={{ maxWidth:1280, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:100, alignItems:'center' }} className="about-grid">
+        <div style={{ position:'relative', opacity:visible?1:0, transform:visible?'none':'translateX(-40px)', transition:'all 0.9s ease' }} className="about-visual">
+          <div style={{ aspectRatio:'4/5', borderRadius:24, background:'#090c20', border:'1px solid #0e1830', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', position:'relative' }}>
+            <Slideshow images={ABOUT_IMAGES} interval={5200} />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, rgba(30,144,255,0.04) 0%, transparent 60%)', pointerEvents:'none' }} />
+          </div>
+          {[{ icon:'fa-truck-fast', text:'Envío rápido', pos:{ top:30, right:-30 } }, { icon:'fa-star', text:'5 estrellas', pos:{ bottom:60, left:-30 } }].map(({ icon,text,pos }) => (
+            <div key={text} style={{ position:'absolute', ...pos, background:'rgba(8,9,28,0.95)', backdropFilter:'blur(16px)', border:'1px solid #142040', borderRadius:12, padding:'12px 16px', display:'flex', alignItems:'center', gap:10, fontSize:'0.8rem', fontWeight:500, color:'#ddeeff', animation:'floatY 3s ease-in-out infinite', boxShadow:'0 12px 40px rgba(0,0,0,0.4)' }}><i className={`fas ${icon}`} style={{ color:'#1e90ff' }} /> {text}</div>
+          ))}
+        </div>
+        <div style={{ opacity:visible?1:0, transform:visible?'none':'translateX(40px)', transition:'all 0.9s ease 0.2s' }}>
+          <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:14 }}>Quiénes somos</div>
+          <h2 className="shimmer-line" style={{ fontSize:'clamp(2rem,4vw,3rem)', fontWeight:700, marginBottom:24, lineHeight:1.15 }}>Somos VYRE</h2>
+          <p style={{ color:'#5a7898', marginBottom:16, fontSize:'0.95rem', lineHeight:1.8 }}>Nacimos con una idea simple: que la protección y el estilo no tengan que costar una fortuna. Nuestros productos combinan diseño minimalista con la durabilidad que tu iPhone y tus oídos merecen.</p>
+          <p style={{ color:'#5a7898', marginBottom:36, fontSize:'0.95rem', lineHeight:1.8 }}>Vendemos en todo el país a través de nuestra tienda online, Mercado Libre, Instagram y TikTok.</p>
+          <div style={{ display:'flex', gap:40, marginBottom:40 }}>
+            {[['500+','Clientes'],['100%','Satisfacción'],['24h','Respuesta']].map(([num,label]) => (
+              <div key={label}><div style={{ fontSize:'2rem', fontWeight:800, color:'#ddeeff', lineHeight:1 }}>{num}</div><div style={{ fontSize:'0.7rem', color:'#5a7898', marginTop:6, letterSpacing:'0.06em' }}>{label}</div></div>
+            ))}
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+            <span style={{ fontSize:'0.75rem', color:'#5a7898' }}>Seguinos en</span>
+            {[['fa-instagram','#'],['fa-tiktok','#'],['fa-store','#']].map(([icon,href]) => (
+              <a key={icon} href={href} style={{ width:36, height:36, borderRadius:'50%', border:'1px solid #142040', display:'flex', alignItems:'center', justifyContent:'center', color:'#5a7898', textDecoration:'none', fontSize:'0.85rem', transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#1e90ff'; e.currentTarget.style.color='#1e90ff'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}><i className={`fab ${icon}`} /></a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Testimonials() {
+  const [ref, visible] = useReveal();
+  const reviews = [{ init:'V', name:'Valentina M.', text:'"La funda quedó perfecta en mi iPhone 15. Calidad increíble para el precio. 100% recomendado."' }, { init:'L', name:'Lucas R.', text:'"Los auriculares VYRE Air son una locura. Sonido increíble y duran todo el día sin cargarse."' }, { init:'S', name:'Sofía T.', text:'"Llegó rapidísimo y el producto es tal cual en las fotos. Los mejores precios que encontré."' }];
+  return (
+    <section style={{ padding:'100px 40px' }}>
+      <div ref={ref} style={{ maxWidth:1280, margin:'0 auto' }}>
+        <div style={{ marginBottom:56, opacity:visible?1:0, transform:visible?'none':'translateY(30px)', transition:'all 0.6s ease' }}>
+          <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:12 }}>Opiniones reales</div>
+          <h2 className="shimmer-line" style={{ fontSize:'clamp(2rem,4vw,3rem)', fontWeight:700, lineHeight:1.15 }}>Lo que dicen nuestros clientes</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:20 }} className="testimonials-grid">
+          {reviews.map((r,i) => (
+            <div key={i} style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:20, padding:28, opacity:visible?1:0, transform:visible?'none':'translateY(30px)', transition:`all 0.6s ease ${i*0.1}s` }}>
+              <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
+                <div style={{ width:42, height:42, borderRadius:'50%', background:'linear-gradient(135deg, #1a1410, #0e1830)', border:'1px solid #1e90ff33', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, color:'#1e90ff' }}>{r.init}</div>
+                <div><div style={{ fontWeight:600, fontSize:'0.9rem', color:'#ddeeff' }}>{r.name}</div><div style={{ fontSize:'0.7rem', color:'#1e90ff', letterSpacing:2, marginTop:2 }}>★★★★★</div></div>
+              </div>
+              <p style={{ color:'#5a7898', fontSize:'0.88rem', lineHeight:1.75 }}>{r.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Contact() {
+  const [ref, visible] = useReveal(0.08);
+  const [form, setForm] = useState({ name:'', email:'', message:'' });
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const handleSubmit = (e) => { e.preventDefault(); setSending(true); setTimeout(() => { setSending(false); setSent(true); setForm({ name:'', email:'', message:'' }); setTimeout(() => setSent(false), 5000); }, 1400); };
+  const inputStyle = { background:'#08091c', border:'1px solid #0e1830', borderRadius:12, padding:'14px 18px', color:'#ddeeff', fontSize:'0.88rem', fontFamily:'inherit', transition:'border-color 0.2s', outline:'none', width:'100%', boxSizing:'border-box' };
+  return (
+    <section id="contacto" style={{ padding:'0 40px 120px' }}>
+      <div ref={ref} style={{ maxWidth:1280, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:100, alignItems:'start' }} className="contact-grid">
+        <div style={{ opacity:visible?1:0, transform:visible?'none':'translateX(-30px)', transition:'all 0.8s ease' }}>
+          <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:14 }}>Contacto</div>
+          <h2 style={{ fontSize:'clamp(2rem,4vw,3rem)', fontWeight:700, marginBottom:16, lineHeight:1.15 }}><span className="shimmer-line">¿Tenés alguna consulta?</span></h2>
+          <p style={{ color:'#5a7898', marginBottom:40, fontSize:'0.95rem', lineHeight:1.7 }}>Escribinos y te respondemos en menos de 24 horas.</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            {[{ icon:'fa-instagram', fab:true, label:'Instagram', val:'@vyre.ar', href:'https://instagram.com/vyre.ar' }, { icon:'fa-whatsapp', fab:true, label:'WhatsApp', val:'+54 11 0000-0000', href:'https://wa.me/5491100000000' }, { icon:'fa-envelope', fab:false, label:'Email', val:'hola@vyre.ar', href:'mailto:hola@vyre.ar' }].map(({ icon,fab,label,val,href }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:16, background:'#08091c', border:'1px solid #0e1830', borderRadius:14, padding:'16px 20px', textDecoration:'none', transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#1e90ff33'; e.currentTarget.style.transform='translateX(4px)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#0e1830'; e.currentTarget.style.transform='none'; }}>
+                <div style={{ width:38, height:38, borderRadius:10, background:'#0c1025', border:'1px solid #142040', display:'flex', alignItems:'center', justifyContent:'center', color:'#1e90ff', fontSize:'0.95rem' }}><i className={`${fab?'fab':'fas'} ${icon}`} /></div>
+                <div><div style={{ fontSize:'0.65rem', color:'#5a7898', letterSpacing:'0.06em', marginBottom:2 }}>{label}</div><div style={{ fontSize:'0.88rem', fontWeight:500, color:'#ddeeff' }}>{val}</div></div>
+              </a>
+            ))}
+          </div>
+        </div>
+        <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:16, opacity:visible?1:0, transform:visible?'none':'translateX(30px)', transition:'all 0.8s ease 0.2s' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+            {[['Nombre','name','text','Tu nombre'],['Email','email','email','tu@email.com']].map(([label,field,type,placeholder]) => (
+              <div key={field}>
+                <label style={{ display:'block', fontSize:'0.72rem', color:'#5a7898', marginBottom:8, letterSpacing:'0.06em' }}>{label}</label>
+                <input type={type} placeholder={placeholder} value={form[field]} required onChange={e => setForm(p => ({ ...p, [field]:e.target.value }))} style={inputStyle} onFocus={e => e.target.style.borderColor='#1e90ff44'} onBlur={e => e.target.style.borderColor='#0e1830'} />
+              </div>
+            ))}
+          </div>
+          <div>
+            <label style={{ display:'block', fontSize:'0.72rem', color:'#5a7898', marginBottom:8, letterSpacing:'0.06em' }}>Mensaje</label>
+            <textarea rows={5} placeholder="¿En qué te podemos ayudar?" value={form.message} required onChange={e => setForm(p => ({ ...p, message:e.target.value }))} style={{ ...inputStyle, resize:'none' }} onFocus={e => e.target.style.borderColor='#1e90ff44'} onBlur={e => e.target.style.borderColor='#0e1830'} />
+          </div>
+          <button type="submit" disabled={sending} style={{ padding:'16px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10, transition:'all 0.2s', opacity:sending?0.7:1 }} onMouseEnter={e => { if(!sending) e.currentTarget.style.background='#1e90ff'; }} onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>
+            {sending ? 'Enviando...' : <><span>Enviar mensaje</span><i className="fas fa-paper-plane" /></>}
+          </button>
+          {sent && <p style={{ textAlign:'center', color:'#1e90ff', fontSize:'0.85rem' }}>¡Mensaje enviado! Te respondemos pronto ✓</p>}
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function HomePage() {
+  return <><Hero /><Marquee /><Features /><Products /><About /><Testimonials /><Contact /></>;
+}
+</script>
+
+<!-- PAGES -->
+<script type="text/babel">
+function ProductDetail({ slug }) {
+  const { PRODUCTS, addToCart, toggleWishlist, wishlist, navigate } = useApp();
+  const product = PRODUCTS.find(p => p.slug === slug);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [tab, setTab] = useState('desc');
+  const [entered, setEntered] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
+  useEffect(() => {
+    if (product) {
+      setSelectedColor(product.colors?.[0] || null);
+      setSelectedModel(product.models?.[0] || null);
+    }
+    setActiveImg(0);
+    const t = setTimeout(() => setEntered(true), 80);
+    return () => { clearTimeout(t); setEntered(false); };
+  }, [product]);
+  if (!product) return <div style={{ minHeight:'80vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:20, color:'#5a7898' }}><i className="fas fa-box-open" style={{ fontSize:'3rem', opacity:0.3 }} /><p>Producto no encontrado</p><button onClick={() => navigate('#/')} style={{ padding:'12px 28px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:10, fontWeight:600, cursor:'pointer', fontSize:'0.85rem' }}>Volver al inicio</button></div>;
+  const inWish = wishlist.some(i => i.id === product.id);
+  return (
+    <div style={{ maxWidth:1280, margin:'0 auto', padding:'120px 40px 100px' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:48, fontSize:'0.75rem', color:'#283860' }}>
+        <button onClick={() => navigate('#/')} style={{ background:'none', border:'none', color:'#5a7898', cursor:'pointer', fontSize:'0.75rem', transition:'color 0.2s', padding:0 }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>Inicio</button>
+        <span>/</span>
+        <button onClick={() => { navigate('#/'); setTimeout(()=>{ const el=document.getElementById('productos'); if(el) el.scrollIntoView({behavior:'smooth'}); },300); }} style={{ background:'none', border:'none', color:'#5a7898', cursor:'pointer', fontSize:'0.75rem', transition:'color 0.2s', padding:0 }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>Productos</button>
+        <span>/</span><span style={{ color:'#ddeeff' }}>{product.name}</span>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:80, alignItems:'start' }} className="product-detail-grid">
+        <div style={{ opacity:entered?1:0, transform:entered?'none':'translateX(-30px)', transition:'all 0.8s ease' }}>
+          <div style={{ aspectRatio:1, background:'#08091c', border:'1px solid #0e1830', borderRadius:24, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 30%, rgba(30,144,255,0.05) 0%, transparent 60%)', pointerEvents:'none' }} />
+            {product.images?.[activeImg]||product.heroImage ? <img src={product.images?.[activeImg]||product.heroImage} alt={product.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : <i className={`fas ${product.icon}`} style={{ fontSize:'8rem', color:'#142040' }} />}
+            {product.badge && <div style={{ position:'absolute', top:20, left:20, background:'#1e90ff', color:'#07090e', fontSize:'0.65rem', fontWeight:700, letterSpacing:'0.06em', padding:'5px 14px', borderRadius:100, textTransform:'uppercase' }}>{product.badge}</div>}
+          </div>
+          {product.images && product.images.length > 1 && (
+            <div style={{ display:'flex', gap:10, marginTop:14 }}>
+              {product.images.map((img,n) => <div key={n} onClick={() => setActiveImg(n)} style={{ flex:1, aspectRatio:1, background:'#08091c', border:`1px solid ${activeImg===n?'#1e90ff44':'#0e1830'}`, borderRadius:12, overflow:'hidden', cursor:'pointer', transition:'border-color 0.2s' }}><img src={img} alt={`${product.name} ${n+1}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} /></div>)}
+            </div>
+          )}
+        </div>
+        <div style={{ opacity:entered?1:0, transform:entered?'none':'translateX(30px)', transition:'all 0.8s ease 0.1s' }}>
+          <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:12 }}>{product.category}</div>
+          <h1 style={{ fontSize:'clamp(1.8rem,3.5vw,2.8rem)', fontWeight:700, color:'#ddeeff', lineHeight:1.15, marginBottom:12 }}>{product.name}</h1>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:24 }}><div style={{ fontSize:'0.8rem', color:'#1e90ff', letterSpacing:3 }}>★★★★★</div><span style={{ fontSize:'0.75rem', color:'#5a7898' }}>5.0 (127 reseñas)</span></div>
+          <div style={{ fontSize:'2.2rem', fontWeight:800, color:'#ddeeff', marginBottom:28 }}>${product.price.toLocaleString('es-AR')}</div>
+          {product.models && (
+            <div style={{ marginBottom:24 }}>
+              <div style={{ fontSize:'0.72rem', color:'#5a7898', letterSpacing:'0.08em', marginBottom:12 }}>
+                Modelo: <span style={{ color:'#ddeeff', fontWeight:500 }}>{selectedModel}</span>
+              </div>
+              <div style={{ position:'relative' }}>
+                <select
+                  value={selectedModel || ''}
+                  onChange={e => setSelectedModel(e.target.value)}
+                  style={{ width:'100%', padding:'12px 40px 12px 16px', background:'#08091c', border:'1px solid #142040', borderRadius:10, color:'#ddeeff', fontSize:'0.88rem', fontFamily:'inherit', cursor:'pointer', outline:'none', appearance:'none', WebkitAppearance:'none', transition:'border-color 0.2s' }}
+                  onFocus={e => e.target.style.borderColor='#1e90ff44'}
+                  onBlur={e => e.target.style.borderColor='#142040'}
+                >
+                  {product.models.map(m => <option key={m} value={m} style={{ background:'#08091c', color:'#ddeeff' }}>{m}</option>)}
+                </select>
+                <i className="fas fa-chevron-down" style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', color:'#5a7898', fontSize:'0.75rem', pointerEvents:'none' }} />
+              </div>
+            </div>
+          )}
+
+          {product.colors && (
+            <div style={{ marginBottom:28 }}>
+              <div style={{ fontSize:'0.72rem', color:'#5a7898', letterSpacing:'0.08em', marginBottom:12 }}>Color: <span style={{ color:'#ddeeff', fontWeight:500 }}>{selectedColor}</span></div>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {product.colors.map(color => <button key={color} onClick={() => setSelectedColor(color)} style={{ padding:'8px 18px', borderRadius:8, border:`1px solid ${selectedColor===color?'#1e90ff':'#142040'}`, background:selectedColor===color?'rgba(30,144,255,0.1)':'transparent', color:selectedColor===color?'#1e90ff':'#5a7898', fontSize:'0.78rem', fontWeight:500, cursor:'pointer', transition:'all 0.2s' }}>{color}</button>)}
+              </div>
+            </div>
+          )}
+          <div style={{ marginBottom:28 }}>
+            <div style={{ fontSize:'0.72rem', color:'#5a7898', letterSpacing:'0.08em', marginBottom:12 }}>Cantidad</div>
+            <div style={{ display:'flex', alignItems:'center', background:'#08091c', border:'1px solid #142040', borderRadius:10, width:'fit-content', overflow:'hidden' }}>
+              <button onClick={() => setQty(q => Math.max(1,q-1))} style={{ width:40, height:40, background:'none', border:'none', color:'#5a7898', cursor:'pointer', fontSize:'1rem', transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>−</button>
+              <span style={{ width:36, textAlign:'center', fontSize:'0.9rem', fontWeight:600, color:'#ddeeff' }}>{qty}</span>
+              <button onClick={() => setQty(q => q+1)} style={{ width:40, height:40, background:'none', border:'none', color:'#5a7898', cursor:'pointer', fontSize:'1rem', transition:'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}>+</button>
+            </div>
+          </div>
+          <div style={{ display:'flex', gap:12, marginBottom:32 }}>
+            <button onClick={() => addToCart(product,qty,selectedColor,selectedModel)} style={{ flex:1, padding:'16px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background='#1e90ff'; e.currentTarget.style.transform='translateY(-1px)'; }} onMouseLeave={e => { e.currentTarget.style.background='#ddeeff'; e.currentTarget.style.transform='none'; }}>Agregar al carrito</button>
+            <button onClick={() => toggleWishlist(product)} style={{ width:52, height:52, borderRadius:12, border:`1px solid ${inWish?'#1e90ff44':'#142040'}`, background:inWish?'rgba(30,144,255,0.08)':'transparent', color:inWish?'#1e90ff':'#5a7898', cursor:'pointer', fontSize:'1rem', transition:'all 0.2s', display:'flex', alignItems:'center', justifyContent:'center' }}><i className={inWish?'fas fa-heart':'far fa-heart'} /></button>
+          </div>
+          <div style={{ borderTop:'1px solid #0e1830', paddingTop:24 }}>
+            <div style={{ display:'flex', gap:6, marginBottom:20 }}>
+              {[['desc','Descripción'],['feat','Características']].map(([key,label]) => <button key={key} onClick={() => setTab(key)} style={{ padding:'8px 18px', borderRadius:8, border:'none', background:tab===key?'#0e1830':'transparent', color:tab===key?'#ddeeff':'#5a7898', fontSize:'0.8rem', fontWeight:500, cursor:'pointer', transition:'all 0.2s' }}>{label}</button>)}
+            </div>
+            {tab==='desc' ? <p style={{ color:'#5a7898', fontSize:'0.9rem', lineHeight:1.8 }}>{product.longDesc}</p> : <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:10 }}>{product.features.map((f,i) => <li key={i} style={{ display:'flex', alignItems:'center', gap:12, fontSize:'0.88rem', color:'#5a7898' }}><span style={{ width:5, height:5, borderRadius:'50%', background:'#1e90ff', flexShrink:0 }} /> {f}</li>)}</ul>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WishlistPage() {
+  const { wishlist, toggleWishlist, addToCart, navigate } = useApp();
+  return (
+    <div style={{ maxWidth:1280, margin:'0 auto', padding:'120px 40px 100px' }}>
+      <div style={{ marginBottom:48 }}>
+        <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:12 }}>Tus favoritos</div>
+        <h1 style={{ fontSize:'clamp(2rem,4vw,3rem)', fontWeight:700, color:'#ddeeff' }}>Wishlist <span style={{ color:'#1e90ff' }}>{wishlist.length>0?`(${wishlist.length})`:''}</span></h1>
+      </div>
+      {wishlist.length===0 ? (
+        <div style={{ textAlign:'center', padding:'80px 40px', color:'#5a7898' }}>
+          <i className="far fa-heart" style={{ fontSize:'3rem', display:'block', marginBottom:20, opacity:0.3 }} />
+          <p style={{ marginBottom:24, fontSize:'0.95rem' }}>Todavía no agregaste favoritos.</p>
+          <button onClick={() => navigate('#/')} style={{ padding:'12px 28px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:10, fontWeight:600, cursor:'pointer', fontSize:'0.85rem' }}>Ver productos</button>
+        </div>
+      ) : (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:20 }}>
+          {wishlist.map(p => (
+            <div key={p.id} style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:20, overflow:'hidden', transition:'border-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor='#1e90ff33'} onMouseLeave={e => e.currentTarget.style.borderColor='#0e1830'}>
+              <div onClick={() => navigate(`#/product/${p.slug}`)} style={{ aspectRatio:1, background:'#0d0d0d', overflow:'hidden', cursor:'pointer' }}>
+                {p.heroImage ? <img src={p.heroImage} alt={p.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'4rem', color:'#142040' }}><i className={`fas ${p.icon}`} /></div>}
+              </div>
+              <div style={{ padding:'18px 20px' }}>
+                <div style={{ fontSize:'0.65rem', color:'#5a7898', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4 }}>{p.category}</div>
+                <div style={{ fontWeight:600, color:'#ddeeff', marginBottom:12 }}>{p.name}</div>
+                <div style={{ display:'flex', gap:10 }}>
+                  <button onClick={() => navigate(`#/product/${p.slug}`)} style={{ flex:1, padding:'10px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:8, fontWeight:600, cursor:'pointer', fontSize:'0.8rem', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#1e90ff'} onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>Ver opciones</button>
+                  <button onClick={() => toggleWishlist(p)} style={{ width:40, height:40, borderRadius:8, border:'1px solid #142040', background:'transparent', color:'#1e90ff', cursor:'pointer', fontSize:'0.85rem', transition:'all 0.2s', display:'flex', alignItems:'center', justifyContent:'center' }}><i className="fas fa-heart" /></button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const STEPS = ['Envío','Pago','Confirmación'];
+
+function Checkout() {
+  const { cart, cartTotal, navigate, addToast } = useApp();
+  const [step, setStep] = useState(0);
+  const [shipping, setShipping] = useState({ name:'', surname:'', email:'', phone:'', address:'', city:'', province:'', zip:'' });
+  const [payment, setPayment] = useState({ method:'card', cardName:'', cardNum:'', expiry:'', cvv:'' });
+  const [placing, setPlacing] = useState(false);
+  useEffect(() => { window.scrollTo({ top:0 }); }, [step]);
+  if (cart.length===0) return <div style={{ minHeight:'80vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:20, color:'#5a7898' }}><i className="fas fa-shopping-bag" style={{ fontSize:'3rem', opacity:0.3 }} /><p>Tu carrito está vacío.</p><button onClick={() => navigate('#/')} style={{ padding:'12px 28px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:10, fontWeight:600, cursor:'pointer', fontSize:'0.85rem' }}>Ver productos</button></div>;
+  const inputS = { background:'#08091c', border:'1px solid #0e1830', borderRadius:10, padding:'13px 16px', color:'#ddeeff', fontSize:'0.88rem', fontFamily:'inherit', outline:'none', width:'100%', boxSizing:'border-box', transition:'border-color 0.2s' };
+  const labelS = { display:'block', fontSize:'0.7rem', color:'#5a7898', letterSpacing:'0.08em', marginBottom:7 };
+  const Field = ({ label, field, obj, setObj, type='text', placeholder='' }) => (
+    <div><label style={labelS}>{label}</label><input type={type} placeholder={placeholder} value={obj[field]} required onChange={e => setObj(p => ({ ...p, [field]:e.target.value }))} style={inputS} onFocus={e => e.target.style.borderColor='#1e90ff44'} onBlur={e => e.target.style.borderColor='#0e1830'} /></div>
+  );
+  const handleOrder = () => { setPlacing(true); setTimeout(() => navigate('#/confirmation'), 1600); };
+  return (
+    <div style={{ maxWidth:1100, margin:'0 auto', padding:'120px 40px 100px' }}>
+      <button onClick={() => navigate('#/')} style={{ display:'flex', alignItems:'center', gap:8, background:'none', border:'none', color:'#5a7898', cursor:'pointer', fontSize:'0.8rem', marginBottom:40, transition:'color 0.2s', padding:0 }} onMouseEnter={e => e.currentTarget.style.color='#ddeeff'} onMouseLeave={e => e.currentTarget.style.color='#5a7898'}><i className="fas fa-arrow-left" /> Seguir comprando</button>
+      <div style={{ display:'flex', alignItems:'center', marginBottom:48 }}>
+        {STEPS.map((s,i) => (
+          <React.Fragment key={i}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:28, height:28, borderRadius:'50%', background:i<=step?'#1e90ff':'#08091c', border:`1px solid ${i<=step?'#1e90ff':'#142040'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.7rem', fontWeight:700, color:i<=step?'#07090e':'#283860', transition:'all 0.3s', flexShrink:0 }}>
+                {i<step ? <i className="fas fa-check" style={{ fontSize:'0.6rem' }} /> : i+1}
+              </div>
+              <span style={{ fontSize:'0.78rem', color:i===step?'#ddeeff':'#283860', fontWeight:i===step?600:400, transition:'color 0.3s' }}>{s}</span>
+            </div>
+            {i<STEPS.length-1 && <div style={{ flex:1, height:1, background:i<step?'#1e90ff44':'#0e1830', margin:'0 16px', transition:'background 0.3s' }} />}
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:40, alignItems:'start' }} className="checkout-grid">
+        <div>
+          {step===0 && (
+            <div style={{ animation:'fadeInUp 0.4s ease' }}>
+              <h2 style={{ fontSize:'1.3rem', fontWeight:700, color:'#ddeeff', marginBottom:28 }}>Información de envío</h2>
+              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}><Field label="Nombre" field="name" obj={shipping} setObj={setShipping} placeholder="Nombre" /><Field label="Apellido" field="surname" obj={shipping} setObj={setShipping} placeholder="Apellido" /></div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}><Field label="Email" field="email" obj={shipping} setObj={setShipping} type="email" placeholder="tu@email.com" /><Field label="Teléfono" field="phone" obj={shipping} setObj={setShipping} placeholder="+54 11 ..." /></div>
+                <Field label="Dirección" field="address" obj={shipping} setObj={setShipping} placeholder="Calle y número" />
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 100px', gap:16 }}><Field label="Ciudad" field="city" obj={shipping} setObj={setShipping} placeholder="Ciudad" /><Field label="Provincia" field="province" obj={shipping} setObj={setShipping} placeholder="Provincia" /><Field label="CP" field="zip" obj={shipping} setObj={setShipping} placeholder="1234" /></div>
+              </div>
+              <button onClick={() => { if(!shipping.name||!shipping.email||!shipping.address){ addToast('Completá todos los campos requeridos'); return; } setStep(1); }} style={{ marginTop:28, width:'100%', padding:'15px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#1e90ff'} onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>Continuar al pago →</button>
+            </div>
+          )}
+          {step===1 && (
+            <div style={{ animation:'fadeInUp 0.4s ease' }}>
+              <h2 style={{ fontSize:'1.3rem', fontWeight:700, color:'#ddeeff', marginBottom:28 }}>Método de pago</h2>
+              <div style={{ display:'flex', gap:10, marginBottom:28 }}>
+                {[['card','Tarjeta','fa-credit-card'],['transfer','Transferencia','fa-building-columns'],['cash','Efectivo','fa-money-bill-wave']].map(([val,label,icon]) => (
+                  <button key={val} onClick={() => setPayment(p => ({ ...p, method:val }))} style={{ flex:1, padding:'14px 12px', border:`1px solid ${payment.method===val?'#1e90ff':'#0e1830'}`, background:payment.method===val?'rgba(30,144,255,0.08)':'#08091c', borderRadius:12, color:payment.method===val?'#1e90ff':'#5a7898', cursor:'pointer', fontSize:'0.78rem', fontWeight:500, transition:'all 0.2s', display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}><i className={`fas ${icon}`} style={{ fontSize:'1.1rem' }} />{label}</button>
+                ))}
+              </div>
+              {payment.method==='card' && <div style={{ display:'flex', flexDirection:'column', gap:16, animation:'fadeInUp 0.3s ease' }}><Field label="Nombre en la tarjeta" field="cardName" obj={payment} setObj={setPayment} placeholder="Como figura en la tarjeta" /><Field label="Número de tarjeta" field="cardNum" obj={payment} setObj={setPayment} placeholder="0000 0000 0000 0000" /><div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}><Field label="Vencimiento" field="expiry" obj={payment} setObj={setPayment} placeholder="MM/AA" /><Field label="CVV" field="cvv" obj={payment} setObj={setPayment} placeholder="123" /></div></div>}
+              {payment.method==='transfer' && <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:12, padding:24 }}><p style={{ fontSize:'0.85rem', color:'#5a7898', lineHeight:1.7 }}>Al confirmar tu pedido te enviaremos los datos bancarios por email. Una vez acreditado el pago, despachamos en 24hs.</p></div>}
+              {payment.method==='cash' && <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:12, padding:24 }}><p style={{ fontSize:'0.85rem', color:'#5a7898', lineHeight:1.7 }}>Coordinamos la entrega en efectivo por WhatsApp. Solo disponible para Capital Federal y GBA.</p></div>}
+              <div style={{ display:'flex', gap:12, marginTop:28 }}>
+                <button onClick={() => setStep(0)} style={{ padding:'15px 24px', background:'transparent', border:'1px solid #142040', color:'#5a7898', borderRadius:12, fontSize:'0.85rem', cursor:'pointer', transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#333'; e.currentTarget.style.color='#ddeeff'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}>← Volver</button>
+                <button onClick={() => setStep(2)} style={{ flex:1, padding:'15px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:'pointer', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#1e90ff'} onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>Revisar pedido →</button>
+              </div>
+            </div>
+          )}
+          {step===2 && (
+            <div style={{ animation:'fadeInUp 0.4s ease' }}>
+              <h2 style={{ fontSize:'1.3rem', fontWeight:700, color:'#ddeeff', marginBottom:28 }}>Revisá tu pedido</h2>
+              <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:28 }}>
+                <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:14, padding:'20px 22px' }}><div style={{ fontSize:'0.65rem', color:'#5a7898', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:12 }}>Envío a</div><p style={{ color:'#ddeeff', fontSize:'0.9rem', lineHeight:1.6 }}>{shipping.name} {shipping.surname}<br />{shipping.address}, {shipping.city}, {shipping.province} ({shipping.zip})<br />{shipping.email} · {shipping.phone}</p></div>
+                <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:14, padding:'20px 22px' }}><div style={{ fontSize:'0.65rem', color:'#5a7898', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:12 }}>Pago</div><p style={{ color:'#ddeeff', fontSize:'0.9rem' }}>{payment.method==='card'?`Tarjeta terminada en ${payment.cardNum.slice(-4)||'****'}`:payment.method==='transfer'?'Transferencia bancaria':'Efectivo (coordinamos por WhatsApp)'}</p></div>
+              </div>
+              <div style={{ display:'flex', gap:12 }}>
+                <button onClick={() => setStep(1)} style={{ padding:'15px 24px', background:'transparent', border:'1px solid #142040', color:'#5a7898', borderRadius:12, fontSize:'0.85rem', cursor:'pointer', transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#333'; e.currentTarget.style.color='#ddeeff'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}>← Volver</button>
+                <button onClick={handleOrder} disabled={placing} style={{ flex:1, padding:'15px', background:placing?'#7a6b54':'#1e90ff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.88rem', fontWeight:700, cursor:placing?'default':'pointer', transition:'all 0.2s', opacity:placing?0.8:1 }}>{placing?'Procesando...':'Confirmar pedido →'}</button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:20, padding:24, position:'sticky', top:90 }}>
+          <div style={{ fontSize:'0.65rem', color:'#5a7898', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:18 }}>Resumen</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:20 }}>
+            {cart.map((item,i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:44, height:44, background:'#111', borderRadius:8, overflow:'hidden', flexShrink:0 }}>{item.heroImage?<img src={item.heroImage} alt={item.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />:<div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', color:'#1e3055' }}><i className={`fas ${item.icon||'fa-box'}`} /></div>}</div>
+                <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:'0.82rem', fontWeight:500, color:'#ddeeff', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{item.name}</div>{item.color&&<div style={{ fontSize:'0.7rem', color:'#5a7898' }}>{item.color}</div>}</div>
+                <div style={{ fontSize:'0.82rem', fontWeight:600, color:'#1e90ff', flexShrink:0 }}>${(item.price*item.qty).toLocaleString('es-AR')}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop:'1px solid #0e1830', paddingTop:16, display:'flex', flexDirection:'column', gap:10 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.82rem', color:'#5a7898' }}><span>Subtotal</span><span>${cartTotal.toLocaleString('es-AR')}</span></div>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.82rem', color:'#5a7898' }}><span>Envío</span><span style={{ color:'#4ade80' }}>Gratis</span></div>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:'1rem', fontWeight:800, color:'#ddeeff', paddingTop:10, borderTop:'1px solid #0e1830' }}><span>Total</span><span>${cartTotal.toLocaleString('es-AR')}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Confirmation() {
+  const { navigate } = useApp();
+  const [show, setShow] = useState(false);
+  useEffect(() => { const t=setTimeout(()=>setShow(true),100); return ()=>clearTimeout(t); }, []);
+  const orderId = '#VYR-' + Math.floor(Math.random()*90000+10000);
+  return (
+    <div style={{ minHeight:'80vh', display:'flex', alignItems:'center', justifyContent:'center', padding:'120px 40px' }}>
+      <div style={{ maxWidth:520, width:'100%', textAlign:'center', opacity:show?1:0, transform:show?'none':'translateY(30px)', transition:'all 0.8s ease' }}>
+        <div style={{ width:72, height:72, borderRadius:'50%', background:'rgba(30,144,255,0.1)', border:'1px solid #1e90ff44', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 28px', fontSize:'1.5rem', color:'#1e90ff' }}><i className="fas fa-check" /></div>
+        <div style={{ fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#5a7898', marginBottom:14 }}>Pedido confirmado</div>
+        <h1 style={{ fontSize:'clamp(2rem,4vw,2.8rem)', fontWeight:700, color:'#ddeeff', marginBottom:16, lineHeight:1.2 }}>¡Gracias por tu compra!</h1>
+        <p style={{ color:'#5a7898', fontSize:'0.95rem', lineHeight:1.75, marginBottom:32 }}>Recibimos tu pedido <span style={{ color:'#1e90ff', fontWeight:600 }}>{orderId}</span>.<br />Te enviaremos un email de confirmación y los detalles de seguimiento.</p>
+        <div style={{ background:'#08091c', border:'1px solid #0e1830', borderRadius:16, padding:24, marginBottom:32 }}>
+          {[['Tiempo de despacho','24 - 48hs hábiles'],['Método de seguimiento','Email + WhatsApp'],['Soporte','@vyre.ar en Instagram']].map(([k,v]) => (
+            <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #0e1830', fontSize:'0.85rem' }}><span style={{ color:'#5a7898' }}>{k}</span><span style={{ color:'#ddeeff', fontWeight:500 }}>{v}</span></div>
+          ))}
+        </div>
+        <div style={{ display:'flex', gap:12 }}>
+          <a href="https://wa.me/5491100000000" target="_blank" rel="noopener noreferrer" style={{ flex:1, padding:'14px', background:'transparent', border:'1px solid #142040', borderRadius:12, color:'#5a7898', textDecoration:'none', fontSize:'0.85rem', fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8, transition:'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor='#25d366'; e.currentTarget.style.color='#25d366'; }} onMouseLeave={e => { e.currentTarget.style.borderColor='#142040'; e.currentTarget.style.color='#5a7898'; }}><i className="fab fa-whatsapp" /> WhatsApp</a>
+          <button onClick={() => navigate('#/')} style={{ flex:1, padding:'14px', background:'#ddeeff', color:'#07090e', border:'none', borderRadius:12, fontSize:'0.85rem', fontWeight:700, cursor:'pointer', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#1e90ff'} onMouseLeave={e => e.currentTarget.style.background='#ddeeff'}>Seguir comprando</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<!-- APP ROOT -->
+<script type="text/babel">
+function App() {
+  const { route, toasts } = useApp();
+  const hash = route.replace('#','').replace(/^\//,'');
+  const segments = hash.split('/').filter(Boolean);
+  const page = segments[0] || '';
+  const param = segments[1] || '';
+  let content;
+  if (page==='product' && param) content = <ProductDetail slug={param} />;
+  else if (page==='checkout') content = <Checkout />;
+  else if (page==='confirmation') content = <Confirmation />;
+  else if (page==='wishlist') content = <WishlistPage />;
+  else content = <HomePage />;
+  const showFooter = page!=='checkout' && page!=='confirmation';
+  return (
+    <div style={{ minHeight:'100vh', background:'#07090e' }}>
+      <Navbar />
+      <CartSidebar />
+      <ToastContainer toasts={toasts} />
+      <main>{content}</main>
+      {showFooter && <Footer />}
+    </div>
+  );
+}
+
+function Root() {
+  return <AppProvider><App /></AppProvider>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+</script>
+
+</body>
+</html>
